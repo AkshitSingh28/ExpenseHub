@@ -94,12 +94,6 @@ http://localhost:5173
 
 ---
 
-## Screenshots
-
-_Add project screenshots here_
-
----
-
 ## Future Improvements
 
 - Export expenses to PDF
