@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 from app import models, schemas
 
-# -------- USER --------
 def create_user(db: Session, user: schemas.UserCreate):
     db_user = models.User(name=user.name)
     db.add(db_user)
@@ -10,7 +9,6 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-# -------- EXPENSE --------
 def create_expense(db: Session, expense: schemas.ExpenseCreate, user_id: int):
     db_expense = models.Expense(
     **expense.dict(),

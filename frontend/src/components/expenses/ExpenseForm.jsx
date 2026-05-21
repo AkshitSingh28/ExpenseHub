@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-function ExpenseForm() {
+function ExpenseForm({ fetchExpenses }) {
 
   const [title, setTitle] = useState("");
 
@@ -28,6 +28,7 @@ function ExpenseForm() {
       );
 
       alert("Transaction Added");
+      fetchExpenses();
 
       setTitle("");
       setAmount("");

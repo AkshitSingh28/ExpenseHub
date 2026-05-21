@@ -5,7 +5,6 @@ from app import crud, schemas
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-# Dependency
 def get_db():
     db = SessionLocal()
     try:
