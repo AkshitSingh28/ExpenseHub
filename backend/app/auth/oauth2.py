@@ -1,16 +1,18 @@
-from jose import jwt, JWTError
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
+from jose import jwt, JWTError
 
-SECRET_KEY = "your_secret_key"
+SECRET_KEY = "expensehub_secret_key"
 ALGORITHM = "HS256"
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"
 )
 
-def verify_token(token: str = Depends(oauth2_scheme)):
 
+def get_current_user_id(
+    token: str = Depends(oauth2_scheme)
+):
     try:
         payload = jwt.decode(
             token,

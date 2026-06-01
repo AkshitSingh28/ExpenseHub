@@ -32,10 +32,35 @@ function Sidebar({ setActivePage }) {
         </button>
 
         <button
+          onClick={() => setActivePage("budgets")}
+          className="block w-full text-left hover:text-blue-400"
+        >
+          Budgets
+        </button>
+
+        <button
           onClick={() => setActivePage("settings")}
           className="block w-full text-left hover:text-blue-400"
         >
           Settings
+        </button>
+
+        <button
+          onClick={() => setActivePage("subscriptions")}
+          className="block w-full text-left hover:text-blue-400"
+        >
+          Subscriptions
+        </button>
+
+        <button
+          onClick={() => {
+
+            localStorage.removeItem("token");
+            window.location.reload();
+          }}
+          className="block w-full text-left text-red-400 mt-10"
+        >
+          Logout
         </button>
 
       </div>

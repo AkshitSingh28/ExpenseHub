@@ -2,19 +2,72 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import Sidebar from "../components/layout/Sidebar";
+
 import ExpenseForm from "../components/ExpenseForm";
 import ExpenseList from "../components/ExpenseList";
+
 import SummaryCard from "../components/dashboard/SummaryCard";
+
+import AnalyticsPanel from "../components/analytics/AnalyticsPanel";
+
+import BudgetCard from "../components/budget/BudgetCard";
+
+import AIInsights from "../components/ai/AIInsights";
+
+import SubscriptionTracker from "../components/subscriptions/SubscriptionTracker";
 
 function Dashboard() {
 
   const [expenses, setExpenses] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const [selectedCategory, setSelectedCategory] =
+    useState("All");
+
   const [search, setSearch] = useState("");
 
   // ACTIVE SIDEBAR PAGE
 
-  const [activePage, setActivePage] = useState("dashboard");
+  const [activePage, setActivePage] =
+    useState("dashboard");
+
+  // BUDGET DATA
+
+  const budgets = [
+    {
+      category: "Food",
+      limit: 5000
+    },
+    {
+      category: "Travel",
+      limit: 8000
+    },
+    {
+      category: "Shopping",
+      limit: 7000
+    },
+    {
+      category: "Bills",
+      limit: 6000
+    }
+  ];
+
+  // CATEGORY SPENDING
+
+  const getCategorySpent = (category) => {
+
+    return expenses
+      .filter(
+        (item) =>
+          item.category === category &&
+          item.type === "expense"
+      )
+      .reduce(
+        (sum, item) =>
+          sum + Number(item.amount),
+        0
+      );
+
+  };
 
   // FETCH DATA
 
@@ -36,6 +89,8 @@ function Dashboard() {
 
   };
 
+  // LOAD DATA
+
   useEffect(() => {
 
     fetchExpenses();
@@ -46,30 +101,43 @@ function Dashboard() {
 
   const totalIncome = expenses
     .filter((item) => item.type === "income")
-    .reduce((acc, item) => acc + item.amount, 0);
+    .reduce(
+      (acc, item) =>
+        acc + Number(item.amount),
+      0
+    );
 
   const totalExpense = expenses
     .filter((item) => item.type === "expense")
-    .reduce((acc, item) => acc + item.amount, 0);
+    .reduce(
+      (acc, item) =>
+        acc + Number(item.amount),
+      0
+    );
 
-  const balance = totalIncome - totalExpense;
+  const balance =
+    totalIncome - totalExpense;
 
-  // FILTER
+  // FILTER + SEARCH
 
-  const filteredExpenses = expenses.filter((item) => {
+  const filteredExpenses =
+    expenses.filter((item) => {
 
-    const matchesCategory =
-      selectedCategory === "All" ||
-      item.category === selectedCategory;
+      const matchesCategory =
+        selectedCategory === "All" ||
+        item.category === selectedCategory;
 
-    const matchesSearch =
-      item.title
-        .toLowerCase()
-        .includes(search.toLowerCase());
+      const matchesSearch =
+        item.title
+          .toLowerCase()
+          .includes(search.toLowerCase());
 
-    return matchesCategory && matchesSearch;
+      return (
+        matchesCategory &&
+        matchesSearch
+      );
 
-  });
+    });
 
   return (
 
@@ -77,7 +145,9 @@ function Dashboard() {
 
       {/* SIDEBAR */}
 
-      <Sidebar setActivePage={setActivePage} />
+      <Sidebar
+        setActivePage={setActivePage}
+      />
 
       {/* MAIN CONTENT */}
 
@@ -88,11 +158,12 @@ function Dashboard() {
         {activePage === "dashboard" && (
 
           <>
+
             <h1 className="text-3xl font-bold mb-8">
               Dashboard
             </h1>
 
-            {/* SUMMARY */}
+            {/* SUMMARY CARDS */}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
@@ -116,13 +187,17 @@ function Dashboard() {
 
             </div>
 
+            <AIInsights />
+
             {/* SEARCH */}
 
             <input
               type="text"
               placeholder="Search transactions..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
               className="border p-3 rounded-lg w-full mb-4"
             />
 
@@ -130,7 +205,11 @@ function Dashboard() {
 
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={(e) =>
+                setSelectedCategory(
+                  e.target.value
+                )
+              }
               className="border p-3 rounded-lg mb-6"
             >
 
@@ -145,7 +224,9 @@ function Dashboard() {
 
             {/* FORM */}
 
-            <ExpenseForm fetchExpenses={fetchExpenses} />
+            <ExpenseForm
+              fetchExpenses={fetchExpenses}
+            />
 
             {/* LIST */}
 
@@ -153,6 +234,7 @@ function Dashboard() {
               expenses={filteredExpenses}
               fetchExpenses={fetchExpenses}
             />
+
           </>
 
         )}
@@ -161,42 +243,36 @@ function Dashboard() {
 
         {activePage === "analytics" && (
 
+          <AnalyticsPanel
+            expenses={expenses}
+          />
+
+        )}
+
+        {/* BUDGET PAGE */}
+
+        {activePage === "budgets" && (
+
           <div>
 
-            <h1 className="text-3xl font-bold mb-6">
-              Analytics
+            <h1 className="text-3xl font-bold mb-8">
+              Budget Management
             </h1>
 
-            <div className="bg-white p-6 rounded-xl shadow">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-              <p className="text-lg mb-4">
-                Analytics Overview
-              </p>
+              {budgets.map((budget) => (
 
-              <div className="space-y-3">
+                <BudgetCard
+                  key={budget.category}
+                  category={budget.category}
+                  limit={budget.limit}
+                  spent={getCategorySpent(
+                    budget.category
+                  )}
+                />
 
-                <div>
-                  Total Income:
-                  <span className="text-green-600 font-bold ml-2">
-                    ₹ {totalIncome}
-                  </span>
-                </div>
-
-                <div>
-                  Total Expense:
-                  <span className="text-red-500 font-bold ml-2">
-                    ₹ {totalExpense}
-                  </span>
-                </div>
-
-                <div>
-                  Current Balance:
-                  <span className="text-blue-600 font-bold ml-2">
-                    ₹ {balance}
-                  </span>
-                </div>
-
-              </div>
+              ))}
 
             </div>
 
@@ -241,6 +317,11 @@ function Dashboard() {
           </div>
 
         )}
+
+
+        {activePage === "subscriptions" && (
+          <SubscriptionTracker />
+     )}
 
         {/* SETTINGS PAGE */}
 

@@ -4,32 +4,29 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models import User
 from app.schemas import UserCreate, UserLogin
-
-from app.auth.hashing import (
-    hash_password,
-    verify_password
-)
-
-from app.auth.auth_handler import (
-    create_access_token
-)
+from app.auth.hashing import hash_password, verify_password
+from app.auth.jwt_handler import create_access_token
 
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"]
 )
 
+
 def get_db():
     db = SessionLocal()
+
     try:
         yield db
     finally:
         db.close()
 
 
-@router.post("/signup")
-def signup(user: UserCreate, db: Session = Depends(get_db)):
-
+@router.post("/register")
+def register(
+    user: UserCreate,
+    db: Session = Depends(get_db)
+):
     existing_user = db.query(User).filter(
         User.email == user.email
     ).first()
@@ -40,12 +37,10 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
             detail="Email already exists"
         )
 
-    hashed_pw = hash_password(user.password)
-
     new_user = User(
         username=user.username,
         email=user.email,
-        password=hashed_pw
+        password=hash_password(user.password)
     )
 
     db.add(new_user)
@@ -53,13 +48,15 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return {
-        "message": "User created successfully"
+        "message": "User registered successfully"
     }
 
 
 @router.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
-
+def login(
+    user: UserLogin,
+    db: Session = Depends(get_db)
+):
     db_user = db.query(User).filter(
         User.email == user.email
     ).first()
@@ -79,11 +76,11 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
             detail="Invalid credentials"
         )
 
-    access_token = create_access_token(
+    token = create_access_token(
         data={"user_id": db_user.id}
     )
 
     return {
-        "access_token": access_token,
+        "access_token": token,
         "token_type": "bearer"
     }
